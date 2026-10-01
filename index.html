@@ -1,0 +1,1210 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>プチプリン</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root{
+    --bg:#FFF8E7;
+    --surface:#FFFFFF;
+    --surface-2:#FFF1D1;
+    --ink:#4A3222;
+    --ink-soft:#6E4F38;
+    --muted:#9C8166;
+    --line:#F2DFB8;
+    --accent:#FFC93C;
+    --accent-strong:#F2AE00;
+    --accent-ink:#4A3222;
+    --tint-1:#FFC93C;
+    --tint-2:#F2AE00;
+    --tint-3:#E8C77A;
+    --tint-4:#EFDCAA;
+    --tint-5:#F6EBD2;
+    --good:#4C9A5B;
+    --good-bg:#E3F3E1;
+    --warn:#D98324;
+    --warn-bg:#FBE8CE;
+    --danger:#D1574A;
+    --danger-bg:#FBE1DD;
+    --shadow:0 1px 2px rgba(74,50,34,0.08), 0 6px 18px rgba(74,50,34,0.08);
+    --radius-s:10px;
+    --radius-m:18px;
+    --radius-l:26px;
+    --font-display:'M PLUS Rounded 1c', sans-serif;
+    --font-body:'M PLUS Rounded 1c', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-mono:'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#2A1F15; --surface:#372A1C; --surface-2:#423321;
+      --ink:#FBE9CE; --ink-soft:#E3CBA6; --muted:#B79A78; --line:#4A3A26;
+      --accent:#FFCB4D; --accent-strong:#FFD873; --accent-ink:#2A1F15;
+      --tint-1:#FFCB4D; --tint-2:#E8A93D; --tint-3:#B4863F; --tint-4:#7A6136; --tint-5:#4F4027;
+      --good:#7BC98B; --good-bg:#24381F; --warn:#F0A34E; --warn-bg:#3D2A14; --danger:#E58579; --danger-bg:#3D211D;
+      --shadow:0 1px 2px rgba(0,0,0,0.35), 0 6px 18px rgba(0,0,0,0.4);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#2A1F15; --surface:#372A1C; --surface-2:#423321;
+    --ink:#FBE9CE; --ink-soft:#E3CBA6; --muted:#B79A78; --line:#4A3A26;
+    --accent:#FFCB4D; --accent-strong:#FFD873; --accent-ink:#2A1F15;
+    --tint-1:#FFCB4D; --tint-2:#E8A93D; --tint-3:#B4863F; --tint-4:#7A6136; --tint-5:#4F4027;
+    --good:#7BC98B; --good-bg:#24381F; --warn:#F0A34E; --warn-bg:#3D2A14; --danger:#E58579; --danger-bg:#3D211D;
+    --shadow:0 1px 2px rgba(0,0,0,0.35), 0 6px 18px rgba(0,0,0,0.4);
+  }
+
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:var(--font-body); line-height:1.5;
+    padding-bottom:calc(72px + env(safe-area-inset-bottom));
+  }
+  h1,h2,h3{font-family:var(--font-display); font-weight:800; text-wrap:balance; margin:0;}
+  button{font-family:inherit;}
+  .mono{font-family:var(--font-mono); font-variant-numeric:tabular-nums;}
+  #app{max-width:640px; margin:0 auto; padding:0 16px;}
+
+  .topbar{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    padding-block:18px 12px; border-bottom:1px solid var(--line);
+  }
+  .brand{display:flex; align-items:center; gap:12px; min-width:0;}
+  .brand-mark{
+    flex:none; width:42px; height:42px; border-radius:14px;
+    background:linear-gradient(155deg,var(--accent),var(--accent-strong)); color:var(--accent-ink);
+    display:flex; align-items:center; justify-content:center; box-shadow:0 3px 8px rgba(242,174,0,0.35);
+  }
+  .brand-mark svg{width:24px; height:24px;}
+  .brand-text h1{font-size:19px; color:var(--ink);}
+  .brand-text .tagline{margin:2px 0 0; font-size:12px; color:var(--muted);}
+  .status-pill{
+    flex:none; font-size:11px; padding:5px 10px; border-radius:999px; white-space:nowrap;
+    background:var(--surface-2); color:var(--muted); border:1px solid var(--line); cursor:pointer;
+  }
+  .status-pill.is-online{color:var(--good); border-color:var(--good);}
+  .status-pill.is-error{color:var(--danger); border-color:var(--danger);}
+
+  main{padding:18px 0 24px;}
+  .tab-panel{display:flex; flex-direction:column; gap:18px;}
+  .tab-panel[hidden]{display:none;}
+
+  .card{
+    background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-m);
+    padding:16px; box-shadow:var(--shadow);
+  }
+  .section-title{font-size:16px; margin-bottom:2px;}
+  .section-sub{font-size:12.5px; color:var(--muted); margin:0 0 12px;}
+  .helper-text{font-size:12.5px; color:var(--muted); line-height:1.6;}
+
+  /* ---- login ---- */
+  .login-wrap{min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px 16px;}
+  .login-card{width:100%; max-width:360px; text-align:center;}
+  .login-card .brand-mark{margin:0 auto 14px;}
+
+  /* ---- overview ---- */
+  .date-line{font-size:13px; color:var(--muted); margin:-8px 0 0;}
+  .shelf-meter-row{display:flex; align-items:center; gap:10px; padding:7px 0;}
+  .shelf-meter-label{
+    flex:none; width:84px; font-size:12.5px; font-weight:700; color:var(--ink-soft);
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+  .shelf-meter-track{flex:1; height:8px; border-radius:99px; background:var(--surface-2); border:1px solid var(--line); overflow:hidden;}
+  .shelf-meter-fill{height:100%; background:var(--accent); border-radius:99px;}
+  .shelf-meter-count{flex:none; width:56px; text-align:right; font-size:12px; color:var(--ink-soft);}
+
+  .stat-row{display:grid; grid-template-columns:repeat(3,1fr); gap:10px;}
+  .stat-tile{background:var(--surface-2); border:1px solid var(--line); border-radius:var(--radius-s); padding:10px 12px;}
+  .stat-tile .num{font-family:var(--font-mono); font-size:20px; font-weight:600; display:block;}
+  .stat-tile .lbl{font-size:11px; color:var(--muted);}
+
+  .alert-row{display:flex; gap:10px; align-items:flex-start; padding:10px 0; border-top:1px solid var(--line);}
+  .alert-row:first-of-type{border-top:none;}
+  .alert-stripe{flex:none; width:4px; align-self:stretch; border-radius:3px;}
+  .alert-stripe.warn{background:var(--warn);}
+  .alert-stripe.danger{background:var(--danger);}
+  .alert-body{flex:1; min-width:0;}
+  .alert-title{font-size:13.5px; font-weight:600;}
+  .alert-sub{font-size:12px; color:var(--muted);}
+  .empty-note{font-size:13px; color:var(--muted); padding:6px 0;}
+
+  .badge{display:inline-flex; align-items:center; gap:4px; font-size:11px; padding:3px 8px; border-radius:999px; font-weight:700;}
+  .badge.tier-top{background:var(--tint-1); color:var(--accent-ink);}
+  .badge.tier-high{background:var(--tint-2); color:#fff;}
+  .badge.tier-mid{background:var(--tint-3); color:var(--accent-ink);}
+  .badge.tier-low{background:var(--tint-4); color:var(--ink);}
+  .badge.tier-new{background:var(--tint-5); color:var(--ink-soft);}
+
+  .shelf-block{margin-bottom:6px;}
+  .shelf-head{display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin-bottom:8px;}
+  .shelf-head h3{font-size:16px;}
+  .shelf-head .count{font-size:12px; color:var(--muted); font-family:var(--font-mono);}
+  .slot-grid{display:grid; grid-template-columns:repeat(10,1fr); gap:5px;}
+  @media (max-width:480px){ .slot-grid{grid-template-columns:repeat(5,1fr);} }
+  .slot-tile{
+    aspect-ratio:1; border-radius:8px; border:1px dashed var(--line); background:var(--surface-2);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    font-size:10px; color:var(--muted); cursor:pointer; padding:2px; position:relative; overflow:hidden;
+  }
+  .slot-tile .n{position:absolute; top:2px; left:3px; font-size:8px; font-family:var(--font-mono); opacity:0.6;}
+  .slot-tile.filled{border-style:solid; background:var(--surface); color:var(--ink); box-shadow:inset 0 0 0 1px var(--line);}
+  .slot-tile.filled .label{font-size:9.5px; font-weight:600; line-height:1.15; text-align:center; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; padding:0 2px;}
+  .slot-tile .rembar{position:absolute; left:0; bottom:0; height:4px; width:100%; background:var(--line);}
+  .slot-tile .rembar i{display:block; height:100%; background:var(--good);}
+  .unplaced-list{margin-top:10px; display:flex; flex-direction:column; gap:8px;}
+  .unplaced-row{display:flex; align-items:center; justify-content:space-between; gap:8px; background:var(--surface-2); border:1px solid var(--line); border-radius:var(--radius-s); padding:8px 10px; font-size:12.5px;}
+
+  .search-input{width:100%;}
+  .cust-card{border-top:1px solid var(--line); padding:12px 0;}
+  .cust-card:first-of-type{border-top:none; padding-top:2px;}
+  .cust-top{display:flex; align-items:flex-start; justify-content:space-between; gap:10px; cursor:pointer;}
+  .cust-name-row{display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
+  .cust-name{font-size:15px; font-weight:700;}
+  .cust-meta{font-size:12px; color:var(--muted); margin-top:3px;}
+  .cust-right{text-align:right; flex:none; font-size:12px; color:var(--muted);}
+  .cust-detail{margin-top:12px; display:none; flex-direction:column; gap:12px;}
+  .cust-detail.open{display:flex;}
+  .bottle-mini{display:flex; align-items:center; justify-content:space-between; gap:10px; background:var(--surface-2); border:1px solid var(--line); border-radius:var(--radius-s); padding:9px 10px;}
+  .bottle-mini .info{min-width:0;}
+  .bottle-mini .info .nm{font-size:13px; font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .bottle-mini .info .loc{font-size:11.5px; color:var(--muted); font-family:var(--font-mono);}
+  .timeline{display:flex; flex-direction:column; gap:6px;}
+  .timeline-row{display:flex; gap:8px; font-size:12px; color:var(--ink-soft);}
+  .timeline-row .td{font-family:var(--font-mono); color:var(--muted); flex:none; width:74px;}
+  .cust-actions{display:flex; gap:8px; flex-wrap:wrap;}
+
+  label{display:block; font-size:12.5px; color:var(--ink-soft); margin-bottom:5px; font-weight:700;}
+  .field{margin-bottom:14px;}
+  .field-row{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
+  input[type=text], input[type=date], input[type=email], input[type=password], input[type=number], select, textarea{
+    width:100%; padding:9px 11px; border-radius:var(--radius-s); border:1px solid var(--line);
+    background:var(--surface); color:var(--ink); font-family:var(--font-body); font-size:14.5px;
+  }
+  input:focus, select:focus, textarea:focus, button:focus-visible{ outline:2px solid var(--accent); outline-offset:1px; }
+  textarea{resize:vertical; min-height:64px;}
+  .remaining-choices{display:flex; gap:6px; flex-wrap:wrap;}
+  .rem-btn{padding:7px 10px; border-radius:999px; border:1px solid var(--line); background:var(--surface); color:var(--ink-soft); font-size:12.5px; cursor:pointer;}
+  .rem-btn.is-selected{background:var(--accent); border-color:var(--accent); color:var(--accent-ink); font-weight:700;}
+  .photo-row{display:flex; align-items:center; gap:12px;}
+  .photo-thumb{width:64px; height:64px; border-radius:var(--radius-s); object-fit:cover; border:1px solid var(--line); background:var(--surface-2);}
+  .btn{display:inline-flex; align-items:center; justify-content:center; gap:6px; cursor:pointer; padding:10px 16px; border-radius:999px; font-size:13.5px; font-weight:700; border:1px solid transparent;}
+  .btn-primary{background:var(--accent); color:var(--accent-ink);}
+  .btn-secondary{background:var(--surface-2); color:var(--ink); border-color:var(--line);}
+  .btn-danger{background:var(--danger-bg); color:var(--danger);}
+  .btn-block{width:100%;}
+  .btn-sm{padding:6px 12px; font-size:12px;}
+  .form-msg{font-size:12.5px; padding:8px 10px; border-radius:var(--radius-s); background:var(--good-bg); color:var(--good); display:none;}
+  .form-msg.show{display:block;}
+  .form-msg.error{background:var(--danger-bg); color:var(--danger);}
+  .inline-hint{font-size:11.5px; color:var(--muted); margin-top:4px;}
+  .inline-hint.warn{color:var(--warn);}
+  hr.soft{border:none; border-top:1px dashed var(--line); margin:16px 0;}
+
+  .shelf-manage-row{display:flex; gap:10px; align-items:flex-start; padding:12px 0; border-top:1px solid var(--line);}
+  .shelf-manage-row:first-of-type{border-top:none;}
+  .shelf-manage-icon{flex:none; width:34px; height:34px; border-radius:10px; background:var(--surface-2); border:1px solid var(--line); display:flex; align-items:center; justify-content:center; font-family:var(--font-display); font-weight:800; font-size:13px; color:var(--muted);}
+  .shelf-manage-body{flex:1; min-width:0; display:flex; flex-direction:column; gap:8px;}
+  .shelf-manage-fields{display:grid; grid-template-columns:2fr 1fr; gap:8px;}
+  .save-flash{font-size:11px; color:var(--good); margin-top:2px; opacity:0; transition:opacity .3s;}
+  .save-flash.show{opacity:1;}
+  .cleanup-row{display:flex; justify-content:space-between; align-items:center; gap:8px; padding:8px 0; border-top:1px solid var(--line); font-size:12.5px;}
+  .cleanup-row:first-of-type{border-top:none;}
+
+  .bottom-nav{position:fixed; left:0; right:0; bottom:0; z-index:20; background:var(--surface); border-top:1px solid var(--line); display:flex; padding-bottom:env(safe-area-inset-bottom);}
+  .nav-btn{flex:1; background:none; border:none; padding:10px 4px 8px; color:var(--muted); font-size:11.5px; display:flex; flex-direction:column; align-items:center; gap:3px; border-top:2px solid transparent; cursor:pointer;}
+  .nav-btn.is-active{color:var(--accent-strong); border-top-color:var(--accent); font-weight:700;}
+
+  .modal-backdrop{position:fixed; inset:0; background:rgba(42,31,21,0.5); z-index:30; display:flex; align-items:flex-end; justify-content:center;}
+  @media (min-width:640px){ .modal-backdrop{align-items:center;} }
+  .modal-sheet{background:var(--bg); width:100%; max-width:600px; max-height:88vh; overflow-y:auto; border-radius:24px 24px 0 0; padding:18px 18px calc(24px + env(safe-area-inset-bottom)); box-shadow:var(--shadow);}
+  @media (min-width:640px){ .modal-sheet{border-radius:var(--radius-l); max-height:82vh;} }
+  .modal-head{display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:14px;}
+  .modal-close{background:var(--surface-2); border:1px solid var(--line); border-radius:999px; width:30px; height:30px; cursor:pointer; color:var(--ink-soft); flex:none;}
+  .info-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px 14px; margin-bottom:14px;}
+  .info-grid .k{font-size:11px; color:var(--muted);}
+  .info-grid .v{font-size:13.5px; font-weight:700;}
+  hr.sep{border:none; border-top:1px solid var(--line); margin:14px 0;}
+  .toast{position:fixed; left:50%; bottom:calc(84px + env(safe-area-inset-bottom)); transform:translateX(-50%); background:var(--ink); color:var(--bg); padding:9px 16px; border-radius:999px; font-size:12.5px; z-index:40; opacity:0; pointer-events:none; transition:opacity .25s;}
+  .toast.show{opacity:1;}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function(){
+  "use strict";
+
+  // ====== 設定: Supabase プロジェクトの値に書き換えてください ======
+  var SUPABASE_URL = "https://usmwgzxlfovvjeirmisz.supabase.co";
+  var SUPABASE_ANON_KEY = "sb_publishable_v69r4zuKIPHg8nJDzbi6xA_Ii4-iB5e";
+  // ここに入れる anon key は「公開して問題ない」キーです。データの保護は
+  // Supabase 側の RLS(ログイン必須ポリシー)で行っています。
+  // ================================================================
+
+  var PUDDING_ICON =
+    '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">'+
+      '<path d="M5 9h14l-1.7 9.8a2.2 2.2 0 0 1-2.2 1.8H8.9a2.2 2.2 0 0 1-2.2-1.8L5 9Z" fill="#FFF4D6" stroke="#4A3222" stroke-width="1.5" stroke-linejoin="round"/>'+
+      '<path d="M5 9c0-2.3 3.1-4.2 7-4.2s7 1.9 7 4.2" stroke="#4A3222" stroke-width="1.5" stroke-linecap="round"/>'+
+      '<circle cx="12" cy="3.6" r="1.5" fill="#D1574A"/>'+
+      '<path d="M12 2.3V1.1" stroke="#4A3222" stroke-width="1.1" stroke-linecap="round"/>'+
+    '</svg>';
+
+  var REMAINING_LEVELS = [
+    {value:100, label:"満量"}, {value:75, label:"3/4"}, {value:50, label:"半分"},
+    {value:25, label:"1/4"}, {value:0, label:"空"}
+  ];
+  var TIER = {
+    top:  {key:"top",  label:"最頻繁", cls:"tier-top"},
+    high: {key:"high", label:"頻繁",   cls:"tier-high"},
+    mid:  {key:"mid",  label:"普通",   cls:"tier-mid"},
+    low:  {key:"low",  label:"たまに", cls:"tier-low"},
+    new_: {key:"new",  label:"新規",   cls:"tier-new"}
+  };
+
+  var sb = null;
+  var session = null;
+  var realtimeChannel = null;
+  var refetchTimer = null;
+  var bottles = new Map();
+  var customers = new Map();
+  var shelves = [];      // [{shelf,label,capacity,description,sort_order}]
+  var shelvesMap = {};   // shelf -> entry
+  var activeTab = "customers";
+  var openCustomerId = null;
+  var staffNameCache = "";
+  var addFormPhotoData = null;
+
+  try { staffNameCache = localStorage.getItem("pp_staffName") || ""; } catch(e){}
+
+  function escapeHtml(s){
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){
+      return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c];
+    });
+  }
+  function todayStr(){
+    var d = new Date();
+    return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+  }
+  function nowIso(){ return new Date().toISOString(); }
+  function fmtDate(s){ if(!s) return "―"; var p=s.split("-"); return p.length===3 ? p[0]+"/"+Number(p[1])+"/"+Number(p[2]) : s; }
+  function fmtDateShort(s){ if(!s) return "―"; var p=s.split("-"); return p.length===3 ? Number(p[1])+"/"+Number(p[2]) : s; }
+  function daysUntil(s){ if(!s) return null; var t=new Date(s+"T00:00:00"); var t0=new Date(todayStr()+"T00:00:00"); return Math.round((t-t0)/86400000); }
+  function relDays(s){ if(!s) return "来店記録なし"; var d=daysUntil(s); if(d===0) return "本日"; if(d<0) return (-d)+"日前"; return d+"日後"; }
+  function getStaffName(){ var el=document.getElementById("f_staff"); var v=(el&&el.value?el.value:staffNameCache||"").trim(); return v||"(未入力)"; }
+  function remLabel(v){ var f=REMAINING_LEVELS.find(function(r){return r.value===v;}); return f?f.label:(v+"%"); }
+  function toast(msg){ var t=document.getElementById("toast"); t.textContent=msg; t.classList.add("show"); setTimeout(function(){t.classList.remove("show");},2400); }
+
+  function activeBottlesList(){ var out=[]; bottles.forEach(function(b){ if(b.status==="active") out.push(b); }); return out; }
+  function bottlesForCustomer(cid){ return activeBottlesList().filter(function(b){ return b.customerId===cid; }); }
+  function bottlesForShelf(shelf){ return activeBottlesList().filter(function(b){ return b.shelf===shelf; }); }
+  function slotOccupant(shelf, slot){ var found=null; activeBottlesList().forEach(function(b){ if(b.shelf===shelf && Number(b.slot)===Number(slot)) found=b; }); return found; }
+  function shelfCapacity(key){ var s=shelvesMap[key]; return (s && s.capacity) ? s.capacity : 50; }
+  function shelfLabel(key){ var s=shelvesMap[key]; return s ? s.label : (key||"―"); }
+  function shelfDescFor(key){ var s=shelvesMap[key]; return s ? (s.description||"") : ""; }
+  function firstEmptySlot(shelf){ var cap=shelfCapacity(shelf); var taken={}; bottlesForShelf(shelf).forEach(function(b){ if(b.slot) taken[b.slot]=true; }); for(var i=1;i<=cap;i++){ if(!taken[i]) return i; } return null; }
+  function rebuildShelvesMap(){ shelvesMap = {}; shelves.forEach(function(s){ shelvesMap[s.shelf]=s; }); }
+
+  function tierForCustomer(cust){
+    var visits=(cust&&cust.visits)||[];
+    var visitEvents=visits.filter(function(v){return v.type==="visit";});
+    if(visitEvents.length===0) return TIER.new_;
+    var cutoff=Date.now()-60*86400000;
+    var recent=visitEvents.filter(function(v){ return new Date(v.date+"T00:00:00").getTime()>=cutoff; }).length;
+    if(recent>=4) return TIER.top;
+    if(recent>=2) return TIER.high;
+    if(recent>=1) return TIER.mid;
+    return TIER.low;
+  }
+  function lastVisitDate(cust){
+    var visits=((cust&&cust.visits)||[]).filter(function(v){return v.type==="visit";});
+    if(visits.length===0) return null;
+    return visits.reduce(function(a,b){ return a.date>b.date?a:b; }).date;
+  }
+
+  // ---------- Supabase data layer ----------
+  function buildMapsFromRows(customersRows, visitsRows, bottlesRows, historyRows){
+    customers = new Map();
+    customersRows.forEach(function(c){ customers.set(c.id, Object.assign({}, c, {visits:[]})); });
+    visitsRows.forEach(function(v){
+      var c = customers.get(v.customer_id);
+      if(c) c.visits.push({date:v.visit_date, type:v.type, staff:v.staff, note:v.note});
+    });
+    bottles = new Map();
+    bottlesRows.forEach(function(b){
+      var cust = customers.get(b.customer_id);
+      bottles.set(b.id, Object.assign({}, b, {
+        history:[], bottleName:b.bottle_name, customerName:(cust&&cust.name)||"",
+        keptDate:b.kept_date, expiryDate:b.expiry_date, photoDataUrl:b.photo_url,
+        staffInCharge:b.staff_in_charge, customerId:b.customer_id
+      }));
+    });
+    historyRows.forEach(function(h){
+      var b = bottles.get(h.bottle_id);
+      if(b) b.history.push({date:h.event_date, type:h.type, staff:h.staff, note:h.note});
+    });
+  }
+
+  function fetchAll(){
+    return Promise.all([
+      sb.from("customers").select("*"),
+      sb.from("customer_visits").select("*"),
+      sb.from("bottles").select("*"),
+      sb.from("bottle_history").select("*"),
+      sb.from("shelf_settings").select("*").order("sort_order", {ascending:true})
+    ]).then(function(results){
+      var err = results.find(function(r){ return r.error; });
+      if(err){ setStatus("error", "データ取得エラー"); console.error(err.error); return; }
+      buildMapsFromRows(results[0].data||[], results[1].data||[], results[2].data||[], results[3].data||[]);
+      shelves = results[4].data||[];
+      rebuildShelvesMap();
+      setStatus("online", "共有データ接続中");
+      render();
+    }).catch(function(e){ setStatus("error","接続エラー"); console.error(e); });
+  }
+
+  function scheduleRefetch(){ clearTimeout(refetchTimer); refetchTimer = setTimeout(fetchAll, 200); }
+
+  function subscribeRealtime(){
+    if(realtimeChannel) return;
+    realtimeChannel = sb.channel("petit-pudding-changes")
+      .on("postgres_changes", {event:"*", schema:"public", table:"customers"}, scheduleRefetch)
+      .on("postgres_changes", {event:"*", schema:"public", table:"customer_visits"}, scheduleRefetch)
+      .on("postgres_changes", {event:"*", schema:"public", table:"bottles"}, scheduleRefetch)
+      .on("postgres_changes", {event:"*", schema:"public", table:"bottle_history"}, scheduleRefetch)
+      .on("postgres_changes", {event:"*", schema:"public", table:"shelf_settings"}, scheduleRefetch)
+      .subscribe();
+  }
+
+  function handleDbError(err){
+    console.error(err);
+    if(err && err.code === "23505"){ toast("その位置は既に使用中です(重複)"); }
+    else { toast("保存に失敗しました: "+(err&&err.message?err.message:"不明なエラー")); }
+  }
+
+  function findCustomerByName(name){
+    var lower = name.trim().toLowerCase();
+    var found = null;
+    customers.forEach(function(c){ if((c.name||"").trim().toLowerCase()===lower) found = c; });
+    return found;
+  }
+
+  function dataURLtoBlob(dataUrl){
+    var arr = dataUrl.split(","), mime = arr[0].match(/:(.*?);/)[1], bstr = atob(arr[1]), n = bstr.length, u8 = new Uint8Array(n);
+    while(n--){ u8[n] = bstr.charCodeAt(n); }
+    return new Blob([u8], {type:mime});
+  }
+
+  function uploadPhotoIfNeeded(dataUrl){
+    if(!dataUrl) return Promise.resolve(null);
+    var blob = dataURLtoBlob(dataUrl);
+    var path = "photo_"+Date.now()+"_"+Math.random().toString(36).slice(2,8)+".jpg";
+    return sb.storage.from("bottle-photos").upload(path, blob, {contentType:"image/jpeg"}).then(function(res){
+      if(res.error){ console.error(res.error); return null; }
+      var pub = sb.storage.from("bottle-photos").getPublicUrl(path);
+      return pub.data.publicUrl;
+    });
+  }
+
+  function submitAddBottle(fd){
+    var name = fd.customerName.trim();
+    if(!name){ toast("お客様名を入力してください"); return; }
+    if(!fd.bottleName.trim()){ toast("ボトル名を入力してください"); return; }
+    var keptDate = fd.keptDate || todayStr();
+    var staff = fd.staff.trim() || "(未入力)";
+    staffNameCache = staff;
+    try{ localStorage.setItem("pp_staffName", staff); }catch(e){}
+
+    if(fd.slot){
+      var occ = slotOccupant(fd.shelf, Number(fd.slot));
+      if(occ){ toast("その位置("+shelfLabel(fd.shelf)+" "+fd.slot+")は既に使用中です"); return; }
+    }
+
+    function afterCustomer(customerId){
+      uploadPhotoIfNeeded(fd.photoDataUrl).then(function(photoUrl){
+        sb.from("bottles").insert({
+          customer_id:customerId, bottle_name:fd.bottleName.trim(), shelf:fd.shelf,
+          slot: fd.slot?Number(fd.slot):null, kept_date:keptDate, expiry_date:fd.expiryDate||null,
+          remaining: fd.remaining!=null?Number(fd.remaining):100, photo_url:photoUrl,
+          staff_in_charge:staff, contact:fd.contact||"", notes:fd.notes||"", status:"active"
+        }).select().single().then(function(res){
+          if(res.error){ handleDbError(res.error); return; }
+          sb.from("bottle_history").insert({bottle_id:res.data.id, event_date:keptDate, type:"in", staff:staff, note:"新規キープ登録"}).then(function(){
+            toast("登録しました: "+name+" / "+fd.bottleName.trim());
+            resetAddFormAfterSubmit();
+          });
+        });
+      });
+    }
+
+    var existing = findCustomerByName(name);
+    if(existing){
+      sb.from("customer_visits").insert({customer_id:existing.id, visit_date:keptDate, type:"in", staff:staff, note:"ボトル追加: "+fd.bottleName.trim()}).then(function(){
+        var upd = {updated_at:nowIso()};
+        if(fd.contact) upd.contact = fd.contact;
+        if(staff) upd.staff_in_charge = staff;
+        sb.from("customers").update(upd).eq("id", existing.id).then(function(){ afterCustomer(existing.id); });
+      });
+    } else {
+      sb.from("customers").insert({name:name, contact:fd.contact||"", staff_in_charge:staff}).select().single().then(function(res){
+        if(res.error){ handleDbError(res.error); return; }
+        sb.from("customer_visits").insert({customer_id:res.data.id, visit_date:keptDate, type:"in", staff:staff, note:"新規キープ登録: "+fd.bottleName.trim()}).then(function(){ afterCustomer(res.data.id); });
+      });
+    }
+  }
+
+  // 来店・更新の記録(日付は指定可・デフォルト当日)
+  function logVisit(customerId, bottleId, date, note){
+    var d = date || todayStr();
+    var staff = getStaffName();
+    sb.from("customer_visits").insert({customer_id:customerId, visit_date:d, type:"visit", staff:staff, note:note||""}).then(function(res){
+      if(res.error){ handleDbError(res.error); return; }
+      toast("更新しました("+fmtDate(d)+")");
+      sb.from("customers").update({updated_at:nowIso()}).eq("id", customerId).then(function(){});
+    });
+    if(bottleId){
+      sb.from("bottle_history").insert({bottle_id:bottleId, event_date:d, type:"visit", staff:staff, note:note||""}).then(function(){
+        sb.from("bottles").update({updated_at:nowIso()}).eq("id", bottleId).then(function(){});
+      });
+    }
+  }
+
+  // ボトルの更新(同じボトルを入れ直す): 元のボトルは終了扱いにし、同じ客に新しいボトルを登録する
+  function renewBottle(oldBottleId, fd){
+    var old = bottles.get(oldBottleId);
+    if(!old){ toast("対象のボトルが見つかりません"); return; }
+    var name = (fd.bottleName||"").trim();
+    if(!name){ toast("ボトル名を入力してください"); return; }
+    var date = fd.keptDate || todayStr();
+    var staff = getStaffName();
+    if(fd.slot){
+      var occ = slotOccupant(fd.shelf, Number(fd.slot));
+      if(occ && occ.id !== oldBottleId){ toast("その位置("+shelfLabel(fd.shelf)+" "+fd.slot+")は既に使用中です"); return; }
+    }
+    sb.from("bottles").update({status:"finished", updated_at:nowIso()}).eq("id", oldBottleId).then(function(res){
+      if(res.error){ handleDbError(res.error); return; }
+      sb.from("bottle_history").insert({bottle_id:oldBottleId, event_date:date, type:"finished", staff:staff, note:"更新のため終了(同じボトルを入れ直し)"}).then(function(){});
+      sb.from("bottles").insert({
+        customer_id: old.customerId, bottle_name:name, shelf:fd.shelf, slot: fd.slot?Number(fd.slot):null,
+        kept_date:date, expiry_date:fd.expiryDate||null, remaining:100, staff_in_charge:staff,
+        contact: old.contact||"", notes: old.notes||"", status:"active"
+      }).select().single().then(function(res2){
+        if(res2.error){ handleDbError(res2.error); return; }
+        sb.from("bottle_history").insert({bottle_id:res2.data.id, event_date:date, type:"in", staff:staff, note:"更新: 同じボトルを継続"}).then(function(){});
+        sb.from("customer_visits").insert({customer_id:old.customerId, visit_date:date, type:"in", staff:staff, note:"更新: "+name}).then(function(){
+          sb.from("customers").update({updated_at:nowIso()}).eq("id", old.customerId).then(function(){});
+        });
+        toast("更新しました: "+name);
+        closeModal();
+      });
+    });
+  }
+
+  function updateBottleCore(bottleId, updates){
+    var bd = bottles.get(bottleId) || {};
+    var staff = getStaffName(); var date = todayStr();
+    var historyInserts = [];
+    if(updates.shelf !== undefined && (updates.shelf !== bd.shelf || Number(updates.slot) !== Number(bd.slot))){
+      var fromLoc = shelfLabel(bd.shelf)+(bd.slot?(" "+bd.slot):"");
+      var toLoc = shelfLabel(updates.shelf)+(updates.slot?(" "+updates.slot):"");
+      historyInserts.push({bottle_id:bottleId, event_date:date, type:"moved", staff:staff, note:fromLoc+" → "+toLoc});
+    }
+    if(updates.remaining !== undefined && Number(updates.remaining) !== Number(bd.remaining)){
+      historyInserts.push({bottle_id:bottleId, event_date:date, type:"remaining", staff:staff, note:"残量更新: "+remLabel(Number(updates.remaining))});
+    }
+    sb.from("bottles").update({
+      shelf:updates.shelf, slot:updates.slot, remaining:updates.remaining,
+      expiry_date:updates.expiryDate, notes:updates.notes, updated_at:nowIso()
+    }).eq("id", bottleId).then(function(res){
+      if(res.error){ handleDbError(res.error); return; }
+      if(historyInserts.length){ sb.from("bottle_history").insert(historyInserts).then(function(){}); }
+      toast("保存しました"); closeModal();
+    });
+  }
+
+  function finishBottle(bottleId){
+    if(!confirm("このボトルを「終了(空瓶)」にします。棚からは外れますが記録は残ります。よろしいですか？")) return;
+    sb.from("bottles").update({status:"finished", updated_at:nowIso()}).eq("id", bottleId).then(function(res){
+      if(res.error){ handleDbError(res.error); return; }
+      sb.from("bottle_history").insert({bottle_id:bottleId, event_date:todayStr(), type:"finished", staff:getStaffName(), note:"ボトル終了"}).then(function(){
+        toast("終了として記録しました"); closeModal();
+      });
+    });
+  }
+
+  function deleteBottlePermanently(bottleId){
+    if(!confirm("完全に削除します。元に戻せません。よろしいですか？")) return;
+    sb.from("bottles").delete().eq("id", bottleId).then(function(res){
+      if(res.error){ handleDbError(res.error); return; }
+      toast("削除しました"); closeModal();
+    });
+  }
+
+  // ---------- 棚(お酒の種類)の管理 ----------
+  function updateShelfField(key, field, value){
+    var upd = {}; upd[field] = value; upd.updated_at = nowIso();
+    sb.from("shelf_settings").update(upd).eq("shelf", key).then(function(res){
+      if(res.error){ handleDbError(res.error); return; }
+      var flash = document.getElementById("flash_"+key);
+      if(flash){ flash.classList.add("show"); setTimeout(function(){ flash.classList.remove("show"); }, 1500); }
+    });
+  }
+
+  function addShelf(label, capacity){
+    label = (label||"").trim();
+    if(!label){ toast("棚(お酒の種類)の名前を入力してください"); return; }
+    var key = "shelf_"+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
+    sb.from("shelf_settings").insert({
+      shelf:key, label:label, capacity: capacity?Number(capacity):50, description:"", sort_order: shelves.length+1
+    }).then(function(res){
+      if(res.error){ handleDbError(res.error); return; }
+      toast("棚「"+label+"」を追加しました");
+      var le = document.getElementById("newShelfLabel"); if(le) le.value="";
+      var ce = document.getElementById("newShelfCapacity"); if(ce) ce.value="";
+    });
+  }
+
+  function deleteShelf(key){
+    if(bottlesForShelf(key).length>0){ toast("この棚にはボトルがあるため削除できません"); return; }
+    if(!confirm("「"+shelfLabel(key)+"」を削除します。よろしいですか？")) return;
+    sb.from("shelf_settings").delete().eq("shelf", key).then(function(res){
+      if(res.error){ handleDbError(res.error); return; }
+      toast("削除しました");
+    });
+  }
+
+  // ---------- auth ----------
+  function setStatus(kind, text){
+    var el = document.getElementById("statusPill");
+    if(!el) return;
+    el.textContent = text;
+    el.className = "status-pill" + (kind==="online" ? " is-online" : kind==="error" ? " is-error" : "");
+  }
+
+  function renderLogin(msg, isError){
+    document.getElementById("root").innerHTML =
+      '<div class="login-wrap"><div class="card login-card">'+
+        '<div class="brand-mark" id="loginBrandMark">'+PUDDING_ICON+'</div>'+
+        '<h2 class="section-title">プチプリン</h2>'+
+        '<p class="section-sub">スナックプチプリン・共有ログインでサインインしてください</p>'+
+        '<div class="form-msg'+(msg?" show":"")+(isError?" error":"")+'" id="loginMsg">'+escapeHtml(msg||"")+'</div>'+
+        '<form id="loginForm">'+
+          '<div class="field"><label for="li_email">メールアドレス</label><input type="email" id="li_email" required></div>'+
+          '<div class="field"><label for="li_password">パスワード</label><input type="password" id="li_password" required></div>'+
+          '<button type="submit" class="btn btn-primary btn-block">ログイン</button>'+
+        '</form>'+
+      '</div></div>';
+    document.getElementById("loginForm").addEventListener("submit", function(e){
+      e.preventDefault();
+      var email = document.getElementById("li_email").value.trim();
+      var password = document.getElementById("li_password").value;
+      sb.auth.signInWithPassword({email:email, password:password}).then(function(res){
+        if(res.error){ renderLogin(res.error.message, true); }
+      });
+    });
+  }
+
+  function renderShell(){
+    document.getElementById("root").innerHTML =
+      '<div id="app">'+
+        '<header class="topbar">'+
+          '<div class="brand"><span class="brand-mark" id="shellBrandMark">'+PUDDING_ICON+'</span>'+
+            '<div class="brand-text"><h1>プチプリン</h1><p class="tagline">棚はお酒の種類ごと ・ スタッフ共有</p></div>'+
+          '</div>'+
+          '<div style="display:flex; align-items:center; gap:8px; flex:none;">'+
+            '<button class="btn btn-primary btn-sm" data-action="jump-add">＋ 追加</button>'+
+            '<button class="status-pill" id="statusPill" title="タップでログアウト">接続中…</button>'+
+          '</div>'+
+        '</header>'+
+        '<main id="main">'+
+          '<section id="tab-overview" class="tab-panel" hidden></section>'+
+          '<section id="tab-shelves" class="tab-panel" hidden></section>'+
+          '<section id="tab-customers" class="tab-panel"></section>'+
+          '<section id="tab-add" class="tab-panel" hidden></section>'+
+          '<section id="tab-settings" class="tab-panel" hidden></section>'+
+        '</main>'+
+        '<nav class="bottom-nav">'+
+          '<button class="nav-btn is-active" data-tab="customers">顧客</button>'+
+          '<button class="nav-btn" data-tab="add">追加</button>'+
+          '<button class="nav-btn" data-tab="overview">概況</button>'+
+          '<button class="nav-btn" data-tab="shelves">棚</button>'+
+          '<button class="nav-btn" data-tab="settings">設定</button>'+
+        '</nav>'+
+        '<div id="modalRoot"></div>'+
+      '</div>';
+
+    document.getElementById("statusPill").addEventListener("click", function(){
+      if(confirm("ログアウトしますか？")) sb.auth.signOut();
+    });
+  }
+
+  function enterApp(){
+    renderShell();
+    setTab("customers");
+    fetchAll().then(subscribeRealtime);
+  }
+
+  // ---------- rendering ----------
+  function render(){
+    if(!document.getElementById("tab-overview")) return;
+    renderOverview(); renderShelves(); renderCustomers(); renderAdd(); renderSettings();
+  }
+
+  function renderOverview(){
+    var el = document.getElementById("tab-overview");
+    var meters = shelves.map(function(s){
+      var c = bottlesForShelf(s.shelf).length; var cap = s.capacity||50;
+      var pct = cap ? Math.round((c/cap)*100) : 0;
+      return '<div class="shelf-meter-row"><div class="shelf-meter-label" title="'+escapeHtml(s.label)+'">'+escapeHtml(s.label)+'</div>'+
+        '<div class="shelf-meter-track"><div class="shelf-meter-fill" style="width:'+pct+'%"></div></div>'+
+        '<div class="shelf-meter-count mono">'+c+' / '+cap+'</div></div>';
+    }).join("");
+
+    var active = activeBottlesList();
+    var alerts = active.filter(function(b){ return b.expiryDate; }).map(function(b){ return {b:b, d:daysUntil(b.expiryDate)}; })
+      .filter(function(x){ return x.d<=14; }).sort(function(a,b){ return a.d-b.d; });
+    var alertsHtml = alerts.length===0 ? '<p class="empty-note">期限が近いボトルはありません。</p>' :
+      alerts.map(function(x){
+        var danger = x.d<0;
+        return '<div class="alert-row"><div class="alert-stripe '+(danger?"danger":"warn")+'"></div>'+
+          '<div class="alert-body"><div class="alert-title">'+escapeHtml(x.b.customerName)+' ／ '+escapeHtml(x.b.bottleName)+'</div>'+
+          '<div class="alert-sub">'+escapeHtml(shelfLabel(x.b.shelf))+(x.b.slot?(" "+x.b.slot):"")+' ・ 期限 '+fmtDate(x.b.expiryDate)+
+          ' ('+(danger?(-x.d)+'日超過':'あと'+x.d+'日')+')</div></div></div>';
+      }).join("");
+
+    var todayVisits = 0;
+    customers.forEach(function(c){ (c.visits||[]).forEach(function(v){ if(v.type==="visit" && v.date===todayStr()) todayVisits++; }); });
+
+    el.innerHTML =
+      '<div class="card"><h2 class="section-title">本日の状況</h2><p class="date-line mono">'+fmtDate(todayStr())+'</p>'+
+        '<div class="stat-row" style="margin-top:12px;">'+
+          '<div class="stat-tile"><span class="num mono">'+active.length+'</span><span class="lbl">稼働ボトル</span></div>'+
+          '<div class="stat-tile"><span class="num mono">'+customers.size+'</span><span class="lbl">登録客数</span></div>'+
+          '<div class="stat-tile"><span class="num mono">'+todayVisits+'</span><span class="lbl">本日の更新件数</span></div>'+
+        '</div></div>'+
+      '<div class="card"><h2 class="section-title">棚の使用状況</h2>'+
+        '<p class="section-sub">お酒の種類ごとに棚を分けています。</p>'+meters+'</div>'+
+      '<div class="card"><h2 class="section-title">キープ期限・要確認</h2>'+
+        '<p class="section-sub">期限まで14日以内、または期限超過のボトル</p>'+alertsHtml+'</div>';
+  }
+
+  function renderShelves(){
+    var el = document.getElementById("tab-shelves");
+    if(shelves.length===0){
+      el.innerHTML = '<div class="card"><p class="empty-note">棚(お酒の種類)がまだ登録されていません。「設定」タブから追加してください。</p></div>';
+      return;
+    }
+    var blocks = shelves.map(function(s){
+      var shelf = s.shelf; var cap = s.capacity||50;
+      var occ = bottlesForShelf(shelf);
+      var unplaced = occ.filter(function(b){ return !b.slot; });
+      var tiles = "";
+      for(var i=1;i<=cap;i++){
+        var b = slotOccupant(shelf, i);
+        if(b){
+          tiles += '<div class="slot-tile filled" data-action="open-bottle" data-id="'+b.id+'">'+
+            '<span class="n">'+i+'</span><span class="label">'+escapeHtml(b.customerName)+'</span>'+
+            '<span class="rembar"><i style="width:'+b.remaining+'%"></i></span></div>';
+        } else {
+          tiles += '<div class="slot-tile" data-action="open-add-at" data-shelf="'+shelf+'" data-slot="'+i+'"><span class="n">'+i+'</span></div>';
+        }
+      }
+      var unplacedHtml = unplaced.length===0 ? "" : '<div class="unplaced-list">'+unplaced.map(function(b){
+        return '<div class="unplaced-row"><span>'+escapeHtml(b.customerName)+' ／ '+escapeHtml(b.bottleName)+' <span style="color:var(--muted)">(位置未設定)</span></span>'+
+          '<button class="btn btn-secondary btn-sm" data-action="open-bottle" data-id="'+b.id+'">配置する</button></div>';
+      }).join("")+'</div>';
+
+      return '<div class="card shelf-block"><div class="shelf-head"><h3>'+escapeHtml(s.label)+'</h3><span class="count mono">'+occ.length+' / '+cap+'</span></div>'+
+        (s.description ? '<p class="section-sub" style="margin-bottom:10px;">'+escapeHtml(s.description)+'</p>' : '')+
+        '<div class="slot-grid">'+tiles+'</div>'+unplacedHtml+'</div>';
+    }).join("");
+    el.innerHTML = blocks;
+  }
+
+  function renderCustomers(){
+    var el = document.getElementById("tab-customers");
+    var q = (document.getElementById("custSearch") && document.getElementById("custSearch").value || "").trim().toLowerCase();
+    var list = Array.from(customers.values());
+    if(q){
+      list = list.filter(function(c){
+        if((c.name||"").toLowerCase().indexOf(q)!==-1) return true;
+        if((c.contact||"").toLowerCase().indexOf(q)!==-1) return true;
+        var bn = bottlesForCustomer(c.id).map(function(b){ return (b.bottleName||"").toLowerCase(); }).join(" ");
+        return bn.indexOf(q)!==-1;
+      });
+    }
+    var tierRank = {top:0, high:1, mid:2, low:3, new:4};
+    list.sort(function(a,b){
+      var ra = tierRank[tierForCustomer(a).key], rb = tierRank[tierForCustomer(b).key];
+      if(ra!==rb) return ra-rb;
+      return (a.name||"").localeCompare(b.name||"", "ja");
+    });
+
+    var cards = list.map(function(c){
+      var tier = tierForCustomer(c);
+      var bl = bottlesForCustomer(c.id);
+      var last = lastVisitDate(c);
+      var isOpen = openCustomerId === c.id;
+      var bottleRows = bl.length===0 ? '<p class="empty-note">現在キープ中のボトルはありません。</p>' :
+        bl.map(function(b){
+          return '<div class="bottle-mini"><div class="info"><div class="nm">'+escapeHtml(b.bottleName)+'</div>'+
+            '<div class="loc">'+escapeHtml(shelfLabel(b.shelf))+(b.slot?(" "+b.slot):" (位置未設定)")+' ・ 残 '+remLabel(b.remaining)+'</div></div>'+
+            '<div style="display:flex; gap:6px; flex:none;">'+
+              '<button class="btn btn-primary btn-sm" data-action="open-renew" data-id="'+b.id+'">更新</button>'+
+              '<button class="btn btn-secondary btn-sm" data-action="open-bottle" data-id="'+b.id+'">詳細</button>'+
+            '</div></div>';
+        }).join("");
+      var recent = (c.visits||[]).slice(-6).reverse().map(function(v){
+        var lbl = v.type==="in"?"入店":(v.type==="visit"?"更新":v.type);
+        return '<div class="timeline-row"><span class="td">'+fmtDateShort(v.date)+'</span><span>'+lbl+(v.note?" — "+escapeHtml(v.note):"")+'</span></div>';
+      }).join("") || '<p class="empty-note">記録はまだありません。</p>';
+
+      return '<div class="cust-card"><div class="cust-top" data-action="toggle-customer" data-id="'+c.id+'">'+
+        '<div><div class="cust-name-row"><span class="cust-name">'+escapeHtml(c.name)+'</span><span class="badge '+tier.cls+'">'+tier.label+'</span></div>'+
+        '<div class="cust-meta">担当: '+escapeHtml(c.staff_in_charge||"―")+(c.contact?' ・ '+escapeHtml(c.contact):'')+'</div></div>'+
+        '<div class="cust-right">ボトル '+bl.length+'本<br>最終来店: '+relDays(last)+'</div></div>'+
+        '<div class="cust-detail'+(isOpen?" open":"")+'" data-cust-detail="'+c.id+'">'+
+          '<div style="display:flex; flex-direction:column; gap:8px;">'+bottleRows+'</div>'+
+          '<div class="cust-actions"><button class="btn btn-secondary btn-sm" data-action="log-visit" data-id="'+c.id+'">来店を記録</button>'+
+            '<button class="btn btn-secondary btn-sm" data-action="prefill-add" data-name="'+escapeHtml(c.name)+'">ボトルを追加</button></div>'+
+          '<hr class="sep" style="margin:2px 0;">'+
+          '<div><div class="section-sub" style="margin-bottom:6px;">来店・更新の履歴(直近)</div><div class="timeline">'+recent+'</div></div>'+
+        '</div></div>';
+    }).join("");
+
+    el.innerHTML = '<div class="card"><h2 class="section-title" style="margin-bottom:10px;">お客様検索</h2>'+
+      '<input type="text" id="custSearch" class="search-input" placeholder="お客様名・連絡先・ボトル名で検索" value="'+escapeHtml(q)+'"></div>'+
+      '<div class="card">'+(list.length===0?'<p class="empty-note">該当するお客様がいません。</p>':cards)+'</div>';
+
+    var s = document.getElementById("custSearch");
+    if(s){
+      s.addEventListener("input", function(){
+        var pos = s.selectionStart;
+        renderCustomers();
+        var s2 = document.getElementById("custSearch");
+        if(s2){ s2.focus(); try{ s2.setSelectionRange(pos,pos); }catch(e){} }
+      });
+    }
+  }
+
+  function renderAdd(){
+    var el = document.getElementById("tab-add");
+    var shelfOptions = shelves.map(function(s){
+      var c = bottlesForShelf(s.shelf).length;
+      return '<option value="'+s.shelf+'">'+escapeHtml(s.label)+' ('+c+' / '+(s.capacity||50)+' 使用中)</option>';
+    }).join("");
+    var datalist = Array.from(customers.values()).map(function(c){ return '<option value="'+escapeHtml(c.name)+'">'; }).join("");
+
+    el.innerHTML = '<div class="card"><h2 class="section-title" style="margin-bottom:2px;">新規ボトル登録</h2>'+
+      '<p class="section-sub">既存のお客様名を入力すると自動で紐づけます。新しいお名前なら新規登録されます。</p>'+
+      '<div class="form-msg" id="addFormMsg"></div>'+
+      '<form id="addForm">'+
+        '<div class="field"><label for="f_customerName">お客様名</label>'+
+          '<input type="text" id="f_customerName" list="custList" autocomplete="off" placeholder="例: 田中様" required>'+
+          '<datalist id="custList">'+datalist+'</datalist></div>'+
+        '<div class="field-row">'+
+          '<div class="field"><label for="f_contact">連絡先(任意)</label><input type="text" id="f_contact" placeholder="電話・LINE等"></div>'+
+          '<div class="field"><label for="f_staff">担当スタッフ</label><input type="text" id="f_staff" value="'+escapeHtml(staffNameCache)+'" placeholder="スタッフ名"></div>'+
+        '</div>'+
+        '<div class="field"><label for="f_bottleName">ボトル名</label><input type="text" id="f_bottleName" placeholder="例: 〇〇 焼酎" required></div>'+
+        '<div class="field-row">'+
+          '<div class="field"><label for="f_shelf">棚(お酒の種類)</label><select id="f_shelf">'+shelfOptions+'</select></div>'+
+          '<div class="field"><label for="f_slot">位置番号(任意)</label><input type="number" id="f_slot" min="1" placeholder="未指定">'+
+            '<div class="inline-hint" id="slotHint"></div></div>'+
+        '</div>'+
+        '<button type="button" class="btn btn-secondary btn-sm" id="autoSlotBtn" style="margin:-6px 0 14px;">空き番号を自動で選ぶ</button>'+
+        '<div class="field-row">'+
+          '<div class="field"><label for="f_keptDate">キープ日</label><input type="date" id="f_keptDate" value="'+todayStr()+'"></div>'+
+          '<div class="field"><label for="f_expiryDate">キープ期限(任意)</label><input type="date" id="f_expiryDate"></div>'+
+        '</div>'+
+        '<div class="field"><label>残量</label><div class="remaining-choices" id="remChoices">'+
+          REMAINING_LEVELS.map(function(r,i){ return '<button type="button" class="rem-btn'+(i===0?" is-selected":"")+'" data-val="'+r.value+'">'+r.label+'</button>'; }).join("")+
+        '</div></div>'+
+        '<div class="field"><label for="f_notes">メモ(任意)</label><textarea id="f_notes" placeholder="お好みの飲み方・アレルギー等"></textarea></div>'+
+        '<div class="field"><label for="f_photo">ボトル写真(任意)</label><div class="photo-row">'+
+          '<img class="photo-thumb" id="photoPreview" style="display:none;">'+
+          '<input type="file" id="f_photo" accept="image/*" capture="environment">'+
+          '<button type="button" class="btn btn-secondary btn-sm" id="clearPhotoBtn" style="display:none;">削除</button></div></div>'+
+        '<button type="submit" class="btn btn-primary btn-block">登録する</button>'+
+      '</form></div>'+
+      '<div class="card"><h2 class="section-title" style="margin-bottom:2px;">ボトルの更新について</h2>'+
+        '<p class="section-sub">「同じボトルを入れ直す」更新は、新規登録ではなく各お客様のボトルの詳細画面(「顧客」タブ → お客様を開く → ボトルの「更新」ボタン)から行います。元のボトルは自動的に終了扱いになり、同じ内容で新しいボトルが登録されます。</p></div>';
+
+    if(addFormPhotoData){
+      var pv = document.getElementById("photoPreview");
+      pv.src = addFormPhotoData; pv.style.display = "block";
+      document.getElementById("clearPhotoBtn").style.display = "inline-flex";
+    }
+    updateSlotHint();
+  }
+
+  function updateSlotHint(){
+    var shelfEl = document.getElementById("f_shelf"), slotEl = document.getElementById("f_slot"), hint = document.getElementById("slotHint");
+    if(!shelfEl||!slotEl||!hint) return;
+    var slot = slotEl.value;
+    if(!slot){ hint.textContent=""; hint.className="inline-hint"; return; }
+    var occ = slotOccupant(shelfEl.value, Number(slot));
+    if(occ){ hint.textContent = "この位置は "+occ.customerName+" 様のボトルが使用中です"; hint.className = "inline-hint warn"; }
+    else { hint.textContent = "この位置は空いています(この棚の最大: "+shelfCapacity(shelfEl.value)+")"; hint.className = "inline-hint"; }
+  }
+
+  function resetAddFormAfterSubmit(){
+    var keepShelf = document.getElementById("f_shelf") ? document.getElementById("f_shelf").value : "";
+    addFormPhotoData = null;
+    renderAdd();
+    var shelfEl = document.getElementById("f_shelf");
+    if(shelfEl && keepShelf) shelfEl.value = keepShelf;
+    var msg = document.getElementById("addFormMsg");
+    if(msg){ msg.textContent = "登録が完了しました。続けて入力できます。"; msg.classList.add("show"); setTimeout(function(){ msg.classList.remove("show"); }, 2500); }
+  }
+
+  function renderSettings(){
+    var el = document.getElementById("tab-settings");
+    var rows = shelves.map(function(s){
+      return '<div class="shelf-manage-row"><div class="shelf-manage-icon">'+escapeHtml((s.label||"?").slice(0,2))+'</div>'+
+        '<div class="shelf-manage-body">'+
+          '<div class="shelf-manage-fields">'+
+            '<div><label style="margin-bottom:3px;">棚の名前</label><input type="text" data-shelf-field="label" data-shelf-key="'+s.shelf+'" value="'+escapeHtml(s.label)+'"></div>'+
+            '<div><label style="margin-bottom:3px;">本数の目安</label><input type="number" min="1" data-shelf-field="capacity" data-shelf-key="'+s.shelf+'" value="'+(s.capacity||50)+'"></div>'+
+          '</div>'+
+          '<textarea data-shelf-field="description" data-shelf-key="'+s.shelf+'" rows="2" placeholder="この棚のメモ(任意)">'+escapeHtml(s.description||"")+'</textarea>'+
+          '<div style="display:flex; align-items:center; justify-content:space-between;">'+
+            '<div class="save-flash" id="flash_'+s.shelf+'">保存しました</div>'+
+            '<button class="btn btn-danger btn-sm" data-action="delete-shelf" data-shelf="'+s.shelf+'">この棚を削除</button>'+
+          '</div>'+
+        '</div></div>';
+    }).join("") || '<p class="empty-note">棚(お酒の種類)がまだありません。下から追加してください。</p>';
+
+    var finished = Array.from(bottles.values()).filter(function(b){ return b.status==="finished"; });
+    var cleanupHtml = finished.length===0 ? '<p class="empty-note">終了済みのボトルはありません。</p>' :
+      finished.map(function(b){
+        return '<div class="cleanup-row"><span>'+escapeHtml(b.customerName)+' ／ '+escapeHtml(b.bottleName)+
+          ' <span style="color:var(--muted)">('+fmtDate(b.keptDate)+' キープ)</span></span>'+
+          '<button class="btn btn-danger btn-sm" data-action="delete-bottle" data-id="'+b.id+'">完全削除</button></div>';
+      }).join("");
+
+    el.innerHTML =
+      '<div class="card"><h2 class="section-title" style="margin-bottom:2px;">棚(お酒の種類)の管理</h2>'+
+        '<p class="section-sub">棚はお酒の種類ごとに自由に追加・編集・削除できます。ボトルが置かれている棚は削除できません。</p>'+rows+
+        '<hr class="soft">'+
+        '<div class="field-row">'+
+          '<div class="field"><label for="newShelfLabel">新しい棚の名前</label><input type="text" id="newShelfLabel" placeholder="例: カクテル用"></div>'+
+          '<div class="field"><label for="newShelfCapacity">本数の目安</label><input type="number" id="newShelfCapacity" min="1" placeholder="50"></div>'+
+        '</div>'+
+        '<button type="button" class="btn btn-primary btn-sm" id="addShelfBtn">＋ 棚を追加</button>'+
+      '</div>'+
+      '<div class="card"><h2 class="section-title" style="margin-bottom:8px;">この端末の初期担当者名</h2>'+
+        '<input type="text" id="deviceStaffName" placeholder="スタッフ名" value="'+escapeHtml(staffNameCache)+'">'+
+        '<p class="helper-text" style="margin-top:8px;">この端末だけの設定です。新規登録フォームの担当欄に自動で入力されます。</p></div>'+
+      '<div class="card"><h2 class="section-title">データについて</h2>'+
+        '<p class="helper-text">登録データ: ボトル '+bottles.size+' 件 ・ お客様 '+customers.size+' 件<br>'+
+        'このページを開いている全スタッフでリアルタイムにデータを共有しています(Supabase)。</p></div>'+
+      '<div class="card"><h2 class="section-title" style="margin-bottom:2px;">終了済みボトルの整理</h2>'+
+        '<p class="section-sub">不要になった終了済みボトルは完全削除できます。</p>'+cleanupHtml+'</div>';
+
+    var dsn = document.getElementById("deviceStaffName");
+    if(dsn){
+      dsn.addEventListener("change", function(){
+        staffNameCache = dsn.value.trim();
+        try{ localStorage.setItem("pp_staffName", staffNameCache); }catch(e){}
+        toast("端末設定を保存しました");
+      });
+    }
+    var addBtn = document.getElementById("addShelfBtn");
+    if(addBtn){
+      addBtn.addEventListener("click", function(){
+        var le = document.getElementById("newShelfLabel"), ce = document.getElementById("newShelfCapacity");
+        addShelf(le?le.value:"", ce?ce.value:"");
+      });
+    }
+  }
+
+  // ---------- modal ----------
+  function closeModal(){ var m = document.getElementById("modalRoot"); if(m) m.innerHTML = ""; }
+
+  function openBottleModal(bottleId){
+    var b = bottles.get(bottleId);
+    if(!b) return;
+    var shelfOptions = shelves.map(function(s){ return '<option value="'+s.shelf+'"'+(s.shelf===b.shelf?" selected":"")+'>'+escapeHtml(s.label)+'</option>'; }).join("");
+    var remChoices = REMAINING_LEVELS.map(function(r){
+      return '<button type="button" class="rem-btn'+(Number(b.remaining)===r.value?" is-selected":"")+'" data-val="'+r.value+'">'+r.label+'</button>';
+    }).join("");
+    var hist = (b.history||[]).slice().reverse().map(function(h){
+      var lbl = {in:"入店",visit:"更新",moved:"移動",remaining:"残量",finished:"終了"}[h.type] || h.type;
+      return '<div class="timeline-row"><span class="td">'+fmtDateShort(h.date)+'</span><span>'+lbl+' ・ '+escapeHtml(h.staff||"")+(h.note?(" — "+escapeHtml(h.note)):"")+'</span></div>';
+    }).join("") || '<p class="empty-note">記録はまだありません。</p>';
+    var photoHtml = b.photoDataUrl ? '<img class="photo-thumb" style="width:100%;height:140px;" src="'+b.photoDataUrl+'">' : '<p class="empty-note">写真は登録されていません。</p>';
+
+    document.getElementById("modalRoot").innerHTML =
+      '<div class="modal-backdrop" data-action="close-modal"><div class="modal-sheet" id="modalSheet">'+
+        '<div class="modal-head"><div><h2 class="section-title">'+escapeHtml(b.customerName)+'</h2></div>'+
+          '<button class="modal-close" data-action="close-modal">×</button></div>'+
+        '<div class="info-grid">'+
+          '<div><div class="k">ボトル名</div><div class="v">'+escapeHtml(b.bottleName)+'</div></div>'+
+          '<div><div class="k">キープ日</div><div class="v mono">'+fmtDate(b.keptDate)+'</div></div>'+
+          '<div><div class="k">担当</div><div class="v">'+escapeHtml(b.staffInCharge||"―")+'</div></div>'+
+          '<div><div class="k">連絡先</div><div class="v">'+escapeHtml(b.contact||"―")+'</div></div></div>'+
+        photoHtml+
+        '<form id="bottleEditForm" style="margin-top:14px;">'+
+          '<input type="hidden" id="be_id" value="'+b.id+'">'+
+          '<div class="field-row"><div class="field"><label for="be_shelf">棚</label><select id="be_shelf">'+shelfOptions+'</select></div>'+
+          '<div class="field"><label for="be_slot">位置番号</label><input type="number" id="be_slot" min="1" value="'+(b.slot||"")+'"></div></div>'+
+          '<div class="field"><label>残量</label><div class="remaining-choices" id="be_remChoices">'+remChoices+'</div></div>'+
+          '<div class="field"><label for="be_expiry">キープ期限</label><input type="date" id="be_expiry" value="'+(b.expiryDate||"")+'"></div>'+
+          '<div class="field"><label for="be_notes">メモ</label><textarea id="be_notes">'+escapeHtml(b.notes||"")+'</textarea></div>'+
+          '<button type="submit" class="btn btn-primary btn-block">変更を保存</button></form>'+
+        '<hr class="sep"><div class="cust-actions">'+
+          (b.status==="active" ? '<button class="btn btn-primary btn-sm" data-action="open-renew" data-id="'+b.id+'">更新(同じボトルを入れ直す)</button>' : '')+
+          '<button class="btn btn-secondary btn-sm" data-action="log-visit" data-id="'+b.customerId+'" data-bottle="'+b.id+'">来店を記録</button>'+
+          (b.status==="active" ? '<button class="btn btn-secondary btn-sm" data-action="finish-bottle" data-id="'+b.id+'">終了(空瓶)にする</button>' : '')+
+          '<button class="btn btn-danger btn-sm" data-action="delete-bottle" data-id="'+b.id+'">完全削除</button></div>'+
+        '<hr class="sep"><div class="section-sub" style="margin-bottom:6px;">履歴</div><div class="timeline">'+hist+'</div>'+
+      '</div></div>';
+
+    document.getElementById("modalSheet").addEventListener("click", function(e){ e.stopPropagation(); });
+    var remSel = Number(b.remaining);
+    document.getElementById("be_remChoices").addEventListener("click", function(e){
+      var btn = e.target.closest(".rem-btn"); if(!btn) return;
+      remSel = Number(btn.dataset.val);
+      Array.from(document.getElementById("be_remChoices").children).forEach(function(c){ c.classList.remove("is-selected"); });
+      btn.classList.add("is-selected");
+    });
+    document.getElementById("bottleEditForm").addEventListener("submit", function(e){
+      e.preventDefault();
+      updateBottleCore(b.id, {
+        shelf: document.getElementById("be_shelf").value,
+        slot: document.getElementById("be_slot").value ? Number(document.getElementById("be_slot").value) : null,
+        remaining: remSel,
+        expiryDate: document.getElementById("be_expiry").value || null,
+        notes: document.getElementById("be_notes").value || ""
+      });
+    });
+  }
+
+  // 更新(来店記録)モーダル: 日付はデフォルト当日・変更可
+  function openVisitModal(customerId, bottleId){
+    var cust = customers.get(customerId);
+    document.getElementById("modalRoot").innerHTML =
+      '<div class="modal-backdrop" data-action="close-modal"><div class="modal-sheet" id="visitModalSheet">'+
+        '<div class="modal-head"><div><h2 class="section-title">更新'+(cust?(': '+escapeHtml(cust.name)):'')+'</h2>'+
+          '<p class="section-sub" style="margin-top:4px;">来店・連絡などの記録を残します。</p></div>'+
+          '<button class="modal-close" data-action="close-modal">×</button></div>'+
+        '<form id="visitModalForm">'+
+          '<div class="field"><label for="vm_date">日付</label><input type="date" id="vm_date" value="'+todayStr()+'"></div>'+
+          '<div class="field"><label for="vm_note">メモ(任意)</label><input type="text" id="vm_note" placeholder="例: 来店、電話連絡など"></div>'+
+          '<button type="submit" class="btn btn-primary btn-block">更新する</button>'+
+        '</form>'+
+      '</div></div>';
+    document.getElementById("visitModalSheet").addEventListener("click", function(e){ e.stopPropagation(); });
+    document.getElementById("visitModalForm").addEventListener("submit", function(e){
+      e.preventDefault();
+      var date = document.getElementById("vm_date").value || todayStr();
+      var note = document.getElementById("vm_note").value || "";
+      logVisit(customerId, bottleId||null, date, note);
+      closeModal();
+    });
+  }
+
+  // 更新モーダル: 同じボトルを入れ直す(元のボトルは終了扱い、新しいボトルを同じ客に登録)
+  function openRenewModal(bottleId){
+    var b = bottles.get(bottleId);
+    if(!b) return;
+    var shelfOptions = shelves.map(function(s){ return '<option value="'+s.shelf+'"'+(s.shelf===b.shelf?" selected":"")+'>'+escapeHtml(s.label)+'</option>'; }).join("");
+    document.getElementById("modalRoot").innerHTML =
+      '<div class="modal-backdrop" data-action="close-modal"><div class="modal-sheet" id="renewModalSheet">'+
+        '<div class="modal-head"><div><h2 class="section-title">更新: '+escapeHtml(b.customerName)+'</h2>'+
+          '<p class="section-sub" style="margin-top:4px;">同じボトルを入れ直します。元のボトルは自動的に「終了」として記録されます。</p></div>'+
+          '<button class="modal-close" data-action="close-modal">×</button></div>'+
+        '<form id="renewForm">'+
+          '<input type="hidden" id="rn_oldId" value="'+b.id+'">'+
+          '<div class="field"><label for="rn_bottleName">ボトル名</label><input type="text" id="rn_bottleName" value="'+escapeHtml(b.bottleName)+'" required></div>'+
+          '<div class="field-row">'+
+            '<div class="field"><label for="rn_shelf">棚(お酒の種類)</label><select id="rn_shelf">'+shelfOptions+'</select></div>'+
+            '<div class="field"><label for="rn_slot">位置番号(任意)</label><input type="number" id="rn_slot" min="1" value="'+(b.slot||"")+'"></div>'+
+          '</div>'+
+          '<div class="field-row">'+
+            '<div class="field"><label for="rn_date">日付</label><input type="date" id="rn_date" value="'+todayStr()+'"></div>'+
+            '<div class="field"><label for="rn_expiry">キープ期限(任意)</label><input type="date" id="rn_expiry"></div>'+
+          '</div>'+
+          '<button type="submit" class="btn btn-primary btn-block">更新する(新しいボトルとして登録)</button>'+
+        '</form>'+
+      '</div></div>';
+    document.getElementById("renewModalSheet").addEventListener("click", function(e){ e.stopPropagation(); });
+    document.getElementById("renewForm").addEventListener("submit", function(e){
+      e.preventDefault();
+      renewBottle(document.getElementById("rn_oldId").value, {
+        bottleName: document.getElementById("rn_bottleName").value,
+        shelf: document.getElementById("rn_shelf").value,
+        slot: document.getElementById("rn_slot").value,
+        keptDate: document.getElementById("rn_date").value,
+        expiryDate: document.getElementById("rn_expiry").value
+      });
+    });
+  }
+
+  function openAddAt(shelf, slot){
+    setTab("add");
+    setTimeout(function(){
+      var s = document.getElementById("f_shelf"), sl = document.getElementById("f_slot");
+      if(s) s.value = shelf;
+      if(sl) sl.value = slot;
+      updateSlotHint();
+      var nameEl = document.getElementById("f_customerName");
+      if(nameEl) nameEl.focus();
+    }, 30);
+  }
+
+  function setTab(name){
+    activeTab = name;
+    ["overview","shelves","customers","add","settings"].forEach(function(t){
+      var el = document.getElementById("tab-"+t);
+      if(el) el.hidden = (t !== name);
+    });
+    Array.from(document.querySelectorAll(".nav-btn")).forEach(function(btn){ btn.classList.toggle("is-active", btn.dataset.tab === name); });
+    window.scrollTo(0,0);
+  }
+
+  function handlePhotoFile(file, cb){
+    if(!file) return;
+    var reader = new FileReader();
+    reader.onload = function(){
+      var img = new Image();
+      img.onload = function(){
+        var maxDim = 480;
+        var scale = Math.min(1, maxDim / Math.max(img.width, img.height));
+        var w = Math.round(img.width*scale), h = Math.round(img.height*scale);
+        var canvas = document.createElement("canvas");
+        canvas.width = w; canvas.height = h;
+        canvas.getContext("2d").drawImage(img, 0, 0, w, h);
+        cb(canvas.toDataURL("image/jpeg", 0.55));
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  // ---------- event delegation ----------
+  document.addEventListener("click", function(e){
+    var navBtn = e.target.closest(".nav-btn");
+    if(navBtn){ setTab(navBtn.dataset.tab); return; }
+    var actionEl = e.target.closest("[data-action]");
+    if(!actionEl) return;
+    var action = actionEl.dataset.action;
+    if(action === "close-modal"){ closeModal(); return; }
+    if(action === "jump-add"){ setTab("add"); window.scrollTo({top:0, behavior:"smooth"}); return; }
+    if(action === "open-bottle"){ openBottleModal(actionEl.dataset.id); return; }
+    if(action === "open-renew"){ openRenewModal(actionEl.dataset.id); return; }
+    if(action === "open-add-at"){ openAddAt(actionEl.dataset.shelf, actionEl.dataset.slot); return; }
+    if(action === "toggle-customer"){
+      var id = actionEl.dataset.id;
+      openCustomerId = (openCustomerId === id) ? null : id;
+      renderCustomers(); return;
+    }
+    if(action === "log-visit"){ openVisitModal(actionEl.dataset.id, actionEl.dataset.bottle || null); return; }
+    if(action === "finish-bottle"){ finishBottle(actionEl.dataset.id); return; }
+    if(action === "delete-bottle"){ deleteBottlePermanently(actionEl.dataset.id); return; }
+    if(action === "delete-shelf"){ deleteShelf(actionEl.dataset.shelf); return; }
+    if(action === "prefill-add"){
+      setTab("add");
+      setTimeout(function(){ var el = document.getElementById("f_customerName"); if(el){ el.value = actionEl.dataset.name; el.focus(); } }, 30);
+      return;
+    }
+    var remBtn = e.target.closest("#remChoices .rem-btn");
+    if(remBtn){
+      Array.from(document.getElementById("remChoices").children).forEach(function(c){ c.classList.remove("is-selected"); });
+      remBtn.classList.add("is-selected"); return;
+    }
+    if(e.target.id === "autoSlotBtn" || e.target.closest("#autoSlotBtn")){
+      var shelfEl = document.getElementById("f_shelf");
+      var slot = firstEmptySlot(shelfEl.value);
+      if(slot){ document.getElementById("f_slot").value = slot; updateSlotHint(); } else { toast("この棚は満杯です"); }
+      return;
+    }
+    if(e.target.id === "clearPhotoBtn" || e.target.closest("#clearPhotoBtn")){
+      addFormPhotoData = null;
+      var pv = document.getElementById("photoPreview"); if(pv) pv.style.display = "none";
+      var pf = document.getElementById("f_photo"); if(pf) pf.value = "";
+      e.target.style.display = "none"; return;
+    }
+  });
+
+  document.addEventListener("change", function(e){
+    if(e.target.id === "f_shelf" || e.target.id === "f_slot"){ updateSlotHint(); return; }
+    if(e.target.id === "f_photo"){
+      var file = e.target.files && e.target.files[0];
+      if(file){
+        handlePhotoFile(file, function(dataUrl){
+          addFormPhotoData = dataUrl;
+          var pv = document.getElementById("photoPreview");
+          pv.src = dataUrl; pv.style.display = "block";
+          document.getElementById("clearPhotoBtn").style.display = "inline-flex";
+        });
+      }
+      return;
+    }
+  });
+
+  document.addEventListener("focusout", function(e){
+    if(e.target.matches("[data-shelf-field]")){
+      var key = e.target.dataset.shelfKey, field = e.target.dataset.shelfField;
+      var val = e.target.value;
+      if(field === "capacity"){ val = Number(val)||50; }
+      else { val = val.trim(); if(field==="label" && !val){ toast("棚の名前は空にできません"); renderSettings(); return; } }
+      updateShelfField(key, field, val);
+    }
+  });
+
+  document.addEventListener("submit", function(e){
+    if(e.target.id === "addForm"){
+      e.preventDefault();
+      var remBtnSel = document.querySelector("#remChoices .rem-btn.is-selected");
+      submitAddBottle({
+        customerName: document.getElementById("f_customerName").value,
+        contact: document.getElementById("f_contact").value,
+        staff: document.getElementById("f_staff").value,
+        bottleName: document.getElementById("f_bottleName").value,
+        shelf: document.getElementById("f_shelf").value,
+        slot: document.getElementById("f_slot").value,
+        keptDate: document.getElementById("f_keptDate").value,
+        expiryDate: document.getElementById("f_expiryDate").value,
+        remaining: remBtnSel ? Number(remBtnSel.dataset.val) : 100,
+        notes: document.getElementById("f_notes").value,
+        photoDataUrl: addFormPhotoData
+      });
+      return;
+    }
+  });
+
+  // ---------- boot ----------
+  document.addEventListener("DOMContentLoaded", function(){
+    if(!window.supabase || typeof window.supabase.createClient !== "function"){
+      document.getElementById("root").innerHTML = '<div class="login-wrap"><div class="card login-card">'+
+        '<p class="empty-note">Supabaseライブラリの読み込みに失敗しました。インターネット接続を確認し、ページを再読み込みしてください。</p></div></div>';
+      return;
+    }
+    if(SUPABASE_URL.indexOf("YOUR_SUPABASE") === 0 || /YOUR_SUPABASE/.test(SUPABASE_URL)){
+      document.getElementById("root").innerHTML = '<div class="login-wrap"><div class="card login-card">'+
+        '<h2 class="section-title">設定が未完了です</h2>'+
+        '<p class="section-sub">ファイル先頭の SUPABASE_URL と SUPABASE_ANON_KEY を、あなたの Supabase プロジェクトの値に書き換えてください。</p></div></div>';
+      return;
+    }
+    sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    sb.auth.getSession().then(function(res){
+      session = res.data.session;
+      if(session){ enterApp(); } else { renderLogin(); }
+    });
+    sb.auth.onAuthStateChange(function(event, sess){
+      var hadSession = !!session;
+      session = sess;
+      if(sess && !hadSession){ enterApp(); }
+      if(!sess && hadSession){ if(realtimeChannel){ sb.removeChannel(realtimeChannel); realtimeChannel=null; } renderLogin(); }
+    });
+  });
+})();
+</script>
+</body>
+</html>
